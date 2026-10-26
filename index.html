@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Friend Fun Facts Form</title>
+		<style>
+			/* General */
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+				font-size: 16px;
+				background: rgba(240, 244, 248, 0.5);
+				color: #1a202c;
+				min-height: 100vh;
+				display: flex;
+				justify-content: center;
+				padding: 2rem 1rem;
+			}
+
+			.container {
+				width: 100%;
+				max-width: 760px;
+			}
+
+			.card {
+				overflow: hidden;
+				border-radius: 24px;
+				padding: 25px;
+				box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+				outline: none;
+				transition: transform 0.3s ease, background-image 3s ease,
+					border 0.3s ease;
+				margin-bottom: 10px;
+			}
+
+			.card:has(.step.active:nth-child(1)) {
+				border: 4px solid #b8de6a;
+				background-image: linear-gradient(
+					45deg,
+					rgb(234, 255, 191, 0.8),
+					rgb(203, 215, 253, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(2)) {
+				border: 4px solid #80a2e0;
+				background-image: linear-gradient(
+					45deg,
+					rgb(203, 215, 253, 0.8),
+					rgb(238, 215, 252, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(3)) {
+				border: 4px solid #cda2e0;
+				background-image: linear-gradient(
+					45deg,
+					rgb(238, 215, 252, 0.8),
+					rgb(255, 207, 217, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(4)) {
+				border: 4px solid #e67f7f;
+				background-image: linear-gradient(
+					45deg,
+					rgb(255, 207, 217, 0.8),
+					rgb(238, 201, 122, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(5)) {
+				border: 4px solid #e98847;
+				background-image: linear-gradient(
+					45deg,
+					rgb(245, 197, 153, 0.8),
+					rgb(245, 226, 141, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(6)) {
+				border: 4px solid #e9be00;
+				background-image: linear-gradient(
+					45deg,
+					rgb(245, 226, 141, 0.8),
+					rgb(240, 227, 169, 0.8)
+				);
+			}
+			.card:has(.step.active:nth-child(7)) {
+				border: 4px solid #b8de6a;
+				background-image: linear-gradient(
+					45deg,
+					rgb(240, 227, 169, 0.8),
+					rgb(234, 255, 191, 0.8)
+				);
+			}
+
+			.card:has(.step.active:nth-child(1)) input {
+				border: 3px solid #b8de6a;
+			}
+			.card:has(.step.active:nth-child(2)) input {
+				border: 3px solid #80a2e0;
+			}
+			.card:has(.step.active:nth-child(3)) input {
+				border: 3px solid #cda2e0;
+			}
+			.card:has(.step.active:nth-child(4)) input {
+				border: 3px solid #e67f7f;
+			}
+			.card:has(.step.active:nth-child(5)) input {
+				border: 3px solid #e98847;
+			}
+			.card:has(.step.active:nth-child(6)) input {
+				border: 3px solid #e9be00;
+			}
+			.card:has(.step.active:nth-child(7)) input {
+				border: 3px solid #b8de6a;
+			}
+
+			/* Intro headings & text */
+
+			.intro {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+				animation: fadeInDown 0.5s ease 0.1s both;
+				margin: 20px;
+			}
+
+			h1 {
+				margin-bottom: 0.5rem;
+				color: #4f46e5;
+				font-family: Consolas;
+				font-kerning: 2px;
+			}
+
+			.subtitle {
+				color: rgb(0, 0, 0, 0.6);
+			}
+
+			/* Dot Navigation */
+
+			.dots {
+				opacity: 1 !important;
+				display: flex;
+				justify-content: center;
+				gap: 0.5rem;
+				margin-bottom: 0.1rem;
+				animation: fadeIn 0.5s ease 0.2 both;
+			}
+
+			.dot {
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				border: 2px solid #cbd5e1;
+				background: transparent;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				padding: 0;
+			}
+
+			.dot:hover {
+				border-color: #6366f1;
+				background: rgba(99, 102, 241, 0.1);
+			}
+
+			.dot.active,
+			.dot.answered.active,
+			.dot.half-answered.active {
+				border-color: #4f46e5;
+				background: #4f46e5;
+				transform: scale(1.2);
+			}
+
+			.dot.answered {
+				border-color: #6366f1;
+				background: rgba(99, 102, 241, 0.35);
+			}
+
+			.dot.half-answered {
+				border-color: #6366f1;
+				background: linear-gradient(
+					to right,
+					rgba(99, 102, 241, 0.35) 50%,
+					transparent 50%
+				);
+			}
+
+			/* Form */
+
+			/* .survey-form {
+				max-width: 700px;
+
+				display: flex;
+				flex-direction: column;
+
+				margin-left: auto;
+				margin-right: auto;
+				width: 80%;
+			} */
+
+			/* Steps & Question Inputs */
+
+			.step-number {
+				font-size: 1rem;
+				margin-bottom: 0.15rem;
+				color: #6366f1;
+
+				text-align: center;
+				animation: unset;
+				transform: unset;
+				transition: unset;
+			}
+
+			.steps {
+				position: relative;
+				min-height: 220px;
+			}
+
+			.step {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				opacity: 0;
+				transform: translateX(40px);
+				pointer-events: none;
+				transition: opacity 0.35s ease, transform 0.35s ease;
+
+				padding: 1rem;
+				gap: 20px;
+
+				display: flex;
+				flex-direction: column;
+			}
+
+			.step.active {
+				position: relative;
+				opacity: 1;
+				transform: translateX(0);
+				pointer-events: auto;
+			}
+
+			.step.exit-left {
+				transform: translateX(-40px);
+			}
+
+			.step.exit-right {
+				transform: translateX(40px);
+			}
+
+			.step.enter-left {
+				transform: translateX(-40px);
+			}
+
+			.step.enter-right {
+				transform: translateX(40px);
+			}
+
+			.field + .field {
+				margin-top: 1.25rem;
+			}
+
+			label,
+			.mock-label {
+				display: block;
+				font-weight: bold;
+				/* margin-bottom: 0.5rem; */
+			}
+
+			.input-examples {
+				/* color: #82858a; */
+				font-size: 1rem;
+				font-style: italic;
+				color: rgba(0, 0, 0, 0.45);
+				margin: 6px 0;
+			}
+
+			/* .input-examples::before {
+				content: "ex: ";
+				font-size: 0.8rem;
+			} */
+
+			input,
+			textarea {
+				color: #6366f1;
+				font-size: 1.1rem;
+				width: 100%;
+				padding: 0.7rem 0.85rem;
+				font-family: inherit;
+				border: 1px solid #6366f1;
+				border-radius: 8px;
+				background: #fff;
+				transition: border-color 0.15s, box-shadow 0.15s;
+				width: 100%;
+				transition: border 0.32s ease;
+			}
+
+			input::placeholder,
+			textarea::placeholder {
+				color: #bbbcbd;
+				font-style: italic;
+			}
+
+			input:focus,
+			textarea:focus {
+				outline-color: rgba(255, 255, 255, 0.4);
+			}
+
+			textarea {
+				resize: vertical;
+				min-height: 90px;
+			}
+
+			/* Navigation buttons */
+
+			.nav-buttons {
+				display: flex;
+				gap: 0, 75rem;
+				margin-top: 1.5rem;
+			}
+
+			.btn {
+				flex: 1;
+				padding: 0.7rem;
+				font-size: 0.95rem;
+				font-weight: 600;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				transition: background 0.15s, transform 0.1s;
+				margin-left: 0.2rem;
+				margin-right: 0.2rem;
+			}
+
+			.btn:active {
+				transform: scale(0.98);
+			}
+
+			.btn-back {
+				background: rgba(255, 255, 255, 0.64);
+				color: #475569;
+			}
+
+			.btn-back:hover {
+				background: rgba(255, 255, 255, 1);
+			}
+
+			.btn-next,
+			.btn-submit {
+				color: #fff;
+				background: #4f46e5;
+			}
+
+			.btn-next:active,
+			.btn-submit:active {
+				background: #4338ca;
+			}
+
+			.btn-submit:disabled {
+				background: #8684a1 !important;
+				opacity: 0.8;
+				cursor: not-allowed;
+			}
+
+			.btn-skip {
+				background: transparent;
+				color: #94a3b8;
+				font-weight: 500;
+			}
+
+			.btn-skip:hover {
+				color: #64748b;
+				background: rgba(255, 255, 255, 1);
+			}
+
+			.btn-copy {
+				background: rgba(255, 255, 255, 1);
+				margin-top: 1rem;
+				margin-left: auto;
+				margin-right: auto;
+				display: none; /* hidden by default */
+
+				background-color: rgba(255, 255, 255, 0.8);
+				background-color: rgba(255, 255, 255, 0.3);
+				color: #a6adc8;
+				border: 2px dashed rgba(133, 133, 133, 0.5);
+
+				transition: border 0.5s, transform 0.1s;
+			}
+
+			.btn-copy:hover {
+				background-color: rgba(255, 255, 255, 0.8);
+				color: #4f46e5;
+				border: 2px solid rgba(133, 133, 133, 0.3);
+			}
+
+			/* Other */
+
+			.copy-message {
+				display: none; /* Hidden by default */
+				margin-left: 10px;
+				font-weight: bold;
+				transition: opacity 0.3s ease;
+			}
+
+			.note {
+				margin-top: 1.25rem;
+				/* font-size: 0.9rem; */
+				font-size: 1rem;
+				color: #4743b9;
+				text-align: center;
+				animation: fadeIn 0.4s ease;
+			}
+
+			/* Animations */
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+
+			@keyframes fadeInDown {
+				from {
+					opacity: 0;
+					transform: translateY(-10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<span class="intro">
+				<h1>Friend Fun Facts Form</h1>
+				<p class="subtitle">
+					Share some facts about yourself! <br />
+					All questions are optional - answer as many or as few as
+					you'd like
+				</p>
+			</span>
+
+			<div class="card">
+				<div class="dots" id="dots"></div>
+
+				<form id="survey" class="survey-form">
+					<!-- <form id="survey"> -->
+					<div class="steps" id="steps">
+						<div class="step" data-index="0">
+							<!-- <div class="question"> -->
+							<div class="step-number">1 of 7</div>
+
+							<div class="field">
+								<label for="food">Favorite food</label>
+								<div class="input-examples">
+									Cake? Pizza? Jello salad?
+								</div>
+								<input
+									type="text"
+									id="food"
+									placeholder="I'll have the..."
+								/>
+							</div>
+							<!-- </div> -->
+
+							<!-- <div class="question"> -->
+							<!-- </div> -->
+							<div class="field">
+								<label for="drink">Favorite beverage</label>
+								<div class="input-examples">
+									Water? Coke? Large mocha skim-milk
+									frappuccino, half-caff 5 pumps vanilla 2 ice
+									cubes?
+								</div>
+								<input
+									type="text"
+									id="drink"
+									placeholder="Is Pepsi OK?"
+								/>
+							</div>
+							<!-- </div> -->
+						</div>
+
+						<div class="step" data-index="1">
+							<!-- <div class="question"> -->
+							<div class="step-number">2 of 7</div>
+
+							<div class="field">
+								<label for="movie"
+									>Favorite movie or TV show</label
+								>
+								<div class="input-examples">
+									The Office? Naruto? Morbius?
+								</div>
+								<input
+									type="text"
+									id="movie"
+									placeholder="Let's watch..."
+								/>
+							</div>
+
+							<!-- <div class="question"> -->
+							<div class="field">
+								<label for="music"
+									>Favorite song, band, or genre</label
+								>
+								<div class="input-examples">
+									T-Swift? Bluegrass? Chop Suey?
+								</div>
+								<input
+									type="text"
+									id="music"
+									placeholder="Pass the aux, we're playing..."
+								/>
+							</div>
+						</div>
+
+						<div class="step" data-index="2">
+							<!-- <div class="question"> -->
+							<div class="step-number">3 of 7</div>
+
+							<div class="field">
+								<label for="skill"
+									>Impressive skill / talent</label
+								>
+								<div class="input-examples">
+									Flute player? Cat whisperer? 2 minute mile?
+								</div>
+								<input
+									type="text"
+									id="skill"
+									placeholder="Hey guys, watch me..."
+								/>
+							</div>
+
+							<!-- <div class="question"> -->
+							<div class="field">
+								<label for="antiskill"
+									>Impressive lack-of-skill</label
+								>
+								<div class="input-examples">
+									Bad dancer? Chronic traffic-ticket
+									recipient? Lose every coin flip?
+								</div>
+								<input
+									type="text"
+									id="antiskill"
+									placeholder="Woops..."
+								/>
+							</div>
+						</div>
+
+						<div class="step" data-index="3">
+							<!-- <div class="question"> -->
+							<div class="step-number">4 of 7</div>
+
+							<div class="field">
+								<label for="hates">Pet peeve</label>
+								<div class="input-examples">
+									Loud chewers? Bad pencil erasers? Dogs with
+									shoes?
+								</div>
+								<input
+									type="text"
+									id="hates"
+									placeholder="Don't even get me started about..."
+								/>
+							</div>
+
+							<!-- <div class="question"> -->
+							<div class="field">
+								<label for="loves">Small joy</label>
+								<div class="input-examples">
+									Picnics? High quality pens? Dogs with hats?
+								</div>
+								<input
+									type="text"
+									id="loves"
+									placeholder="Man, do I love..."
+								/>
+							</div>
+						</div>
+
+						<div class="step" data-index="4">
+							<!-- <div class="question"> -->
+							<div class="step-number">5 of 7</div>
+
+							<div class="field">
+								<label for="real"
+									>Something crazy you actually saw /
+									experienced</label
+								>
+								<div class="input-examples">
+									Paranormal experience? Met Obama? Ate your
+									twin in-utero?
+								</div>
+								<input
+									type="text"
+									id="real"
+									placeholder="You wouldn't believe..."
+								/>
+							</div>
+
+							<!-- <div class="question"> -->
+							<div class="field">
+								<label for="fake"
+									>Something stupid you believed as a
+									kid</label
+								>
+								<div class="input-examples">
+									Bears aren't real? Swearing is illegal?
+									Tooth fairy loosens your teeth when you
+									misbehave?
+								</div>
+								<input
+									type="text"
+									id="fake"
+									placeholder="Wait, but I thought..."
+								/>
+							</div>
+						</div>
+
+						<div class="step" data-index="5">
+							<!-- <div class="question"> -->
+							<div class="step-number">6 of 7</div>
+
+							<div class="field">
+								<label for="item"
+									>Something unusual you own</label
+								>
+								<div class="input-examples">
+									Obscure DVD? Taxidermy hamster? Jar Jar
+									Binks PEZ dispenser?
+								</div>
+								<input
+									type="text"
+									id="item"
+									placeholder="Check THIS out!"
+								/>
+							</div>
+
+							<!-- <div class="question"> -->
+							<div class="field">
+								<label for="self"
+									>Something unusual about you</label
+								>
+								<div class="input-examples">
+									Double jointed? 11 toes? 5% enlarged brain?
+								</div>
+								<input
+									type="text"
+									id="self"
+									placeholder="Did you know I..."
+								/>
+							</div>
+						</div>
+
+						<div class="step" data-index="6">
+							<!-- <div class="question"> -->
+							<div class="step-number">7 of 7</div>
+
+							<div class="field">
+								<label for="other"
+									>Any other fun facts to share?</label
+								>
+								<div class="input-examples">Anything goes!</div>
+								<input
+									type="text"
+									id="other"
+									placeholder="Fun fact..."
+								/>
+							</div>
+
+							<div class="field">
+								<span class="mock-label"
+									>Send me a recent photo of you! (not
+									required)</span
+								>
+								<div class="input-examples">
+									Selfie? Professional headshot? Absolutely
+									cursed candid?
+								</div>
+							</div>
+						</div>
+
+						<div class="nav-buttons" id="nav-buttons">
+							<button
+								type="button"
+								id="btn-back"
+								class="btn btn-back"
+								style="display: none"
+								onclick="goTo(currentStep - 1)"
+							>
+								Back
+							</button>
+							<button
+								type="button"
+								id="btn-skip"
+								class="btn btn-skip"
+								style="display: none"
+								onclick="goTo(currentStep + 1)"
+							>
+								Skip
+							</button>
+							<button
+								type="button"
+								id="btn-next"
+								class="btn btn-next"
+								style="display: none"
+								onclick="goTo(currentStep + 1)"
+							>
+								Next
+							</button>
+							<button
+								type="submit"
+								id="btn-submit"
+								class="btn btn-submit"
+								style="display: none"
+								onclick="goTo(currentStep + 1)"
+							>
+								Submit
+							</button> 
+						</div>
+					</div>
+				</form>
+
+				<p class="note" id="note">
+					Clicking "submit" will open your email with a pre-filled
+					draft. Just hit send!<br />
+					<i>If it doesn't work on your device, click "Copy" to clipboard
+					& DM your answers.</i>
+				</p>
+
+				<button id="btn-copy" class="btn btn-copy" onclick="copyText()">
+					📋 Copy
+				</button>
+			</div>
+			<span
+				id="toastMessage-success"
+				class="copy-message"
+				style="color: green"
+				>Copied to clipboard!</span
+			>
+			<span id="toastMessage-fail" class="copy-message" style="color: red"
+				>Failed to copy to clipboard</span
+			>
+		</div>
+
+		<script>
+			const RECIPIENT = new URLSearchParams("?" + window.location.hash.substring(1)).get("mailto");
+
+			const questions = [
+				{ id: "food", label: "Favorite food" },
+				{ id: "drink", label: "Favorite beverage" },
+				{ id: "movie", label: "Favorite movie or TV show" },
+				{ id: "music", label: "Favorite song, band, or genre" },
+				{ id: "skill", label: "Impressive skill / talent" },
+				{ id: "antiskill", label: "Impressive lack-of-skill" },
+				{ id: "hates", label: "Pet peeve" },
+				{ id: "loves", label: "Small joy" },
+				{ id: "real", label: "Something crazy you actually saw / experienced" },
+				{ id: "fake", label: "Something stupid you believed as a kid" },
+				{ id: "item", label: "Something unusual you own" },
+				{ id: "self", label: "Something unusual about you" },
+				{ id: "other", label: "Any other fun facts to share?" },
+			];
+
+			const stepsEl = document.getElementById("steps");
+			const dotsEl = document.getElementById("dots");
+			const noteEl = document.getElementById("note");
+			const steps = stepsEl.querySelectorAll(".step");
+
+			const totalSteps = steps.length;
+			let currentStep = 0;
+
+			function buildDots() {
+				for (let i = 0; i < totalSteps; i++) {
+					const dot = document.createElement("button");
+					dot.type = "button";
+					dot.className = "dot";
+					dot.addEventListener("click", function () {
+						goTo(i);
+					});
+					dotsEl.appendChild(dot);
+				}
+			}
+
+			function updateDots() {
+				const dots = dotsEl.querySelectorAll(".dot");
+				dots.forEach(function (dot, i) {
+					dot.classList.remove("active", "answered", "half-answered");
+					if (i === currentStep) {
+						dot.classList.add("active");
+					}
+					const inputs = [
+						...steps[i].querySelectorAll("input, textarea"),
+					];
+
+					const answeredCount = inputs.reduce((prev, input) => {
+						return input.value.trim() ? prev + 1 : prev;
+					}, 0);
+
+					if (answeredCount === inputs.length) {
+						dot.classList.add("answered");
+						return;
+					}
+					if (answeredCount > 0) {
+						dot.classList.add("half-answered");
+					}
+				});
+			}
+
+			function renderNav() {
+				const back = document.getElementById("btn-back");
+				const skip = document.getElementById("btn-skip");
+				const next = document.getElementById("btn-next");
+				const submit = document.getElementById("btn-submit");
+				const copy = document.getElementById("btn-copy");
+
+				back.style.display = "none";
+				skip.style.display = "none";
+				next.style.display = "none";
+				submit.style.display = "none";
+				copy.style.display = "none";
+				noteEl.style.display = "none";
+
+				if (currentStep > 0) {
+					back.style.display = "block";
+				}
+				if (currentStep < totalSteps - 1) {
+					skip.style.display = "block";
+					next.style.display = "block";
+				} else {
+					submit.style.display = "block";
+					copy.style.display = "block";
+					noteEl.style.display = "block";
+					
+					submit.disabled = !RECIPIENT;
+				}
+			}
+
+			function goTo(target) {
+				if (
+					target === currentStep ||
+					target < 0 ||
+					target >= totalSteps
+				) {
+					return;
+				}
+
+				var direction = target > currentStep ? "left" : "right";
+				var currentEl = steps[currentStep];
+				var targetEl = steps[target];
+
+				currentEl.classList.remove("active");
+				// currentEl.classList.add("enter-" + direction);
+
+				targetEl.classList.remove(
+					"exit-left",
+					"exit-right",
+					"enter-left",
+					"enter-right"
+				);
+				targetEl.classList.add("enter-" + direction);
+
+				requestAnimationFrame(function () {
+					requestAnimationFrame(function () {
+						targetEl.classList.remove("enter-left", "enter-right");
+						targetEl.classList.add("active");
+					});
+				});
+
+				setTimeout(function () {
+					currentEl.classList.remove("exit-left", "exit-right");
+				}, 350);
+
+				currentStep = target;
+				updateDots();
+				renderNav();
+
+				var input = targetEl.querySelector("input, textarea");
+				if (input) input.focus();
+			}
+
+			function init() {
+				buildDots();
+				steps[0].classList.add("active");
+				updateDots();
+				renderNav();
+
+				var firstInput = steps[0].querySelector("input");
+				if (firstInput) firstInput.focus();
+			}
+
+			function getResponses() {
+				const lines = [];
+				for (var i = 0; i < questions.length; i++) {
+					var value = document
+						.getElementById(questions[i].id)
+						.value.trim();
+					if (value) {
+						lines.push(questions[i].label + ": " + value);
+					}
+				}
+				return lines;
+			}
+
+			async function copyText() {
+				const lines = getResponses();
+
+				if (lines.length === 0) {
+					alert(
+						"You need to answer at least 1 question before copying, my dude"
+					);
+					return;
+				}
+
+				try {
+					await navigator.clipboard.writeText(lines.join("\n\n"));
+
+					const messageEl = document.getElementById(
+						"toastMessage-success"
+					);
+					messageEl.style.display = "inline";
+					setTimeout(() => {
+						messageEl.style.display = "none";
+					}, 2000);
+				} catch (err) {
+					const messageEl =
+						document.getElementById("toastMessage-fail");
+					messageEl.style.display = "inline";
+					setTimeout(() => {
+						messageEl.style.display = "none";
+					}, 2000);
+				}
+			}
+
+			document
+				.getElementById("survey")
+				.addEventListener("submit", function (e) {
+					e.preventDefault();
+
+					const lines = getResponses();
+
+					if (lines.length === 0) {
+						alert(
+							"You need to answer at least 1 question before submitting, my dude"
+						);
+						return;
+					}
+
+					const body = lines.join("\n\n");
+					const subject = "Friend Fun Facts Form Response";
+					const mailto =
+						"mailto:" +
+						encodeURIComponent(RECIPIENT) +
+						"?subject=" +
+						encodeURIComponent(subject) +
+						"&body=" +
+						encodeURIComponent(body);
+
+					window.location.href = mailto;
+				});
+
+			init();
+		</script>
+	</body>
+</html>
